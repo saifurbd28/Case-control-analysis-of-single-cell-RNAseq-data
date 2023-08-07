@@ -34,6 +34,7 @@ merged[["percent.mt"]] <- PercentageFeatureSet(merged, pattern = "^Mt-") # In ca
 
 # VlnPlot
 VlnPlot(merged, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/0e40d81f-22bc-4b62-a6ed-4fc5986e48d5)
 
 # FeatureScatter plots
@@ -42,6 +43,7 @@ plot2 <- FeatureScatter(merged, feature1 = "nCount_RNA", feature2 = "nFeature_RN
 
 # Combine the two FeatureScatter plots using 'patchwork'
 plot1 + plot2
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/ebd87539-f289-4d98-9a1f-b04cb54a51fe)
 
 # Filtering -----------------
@@ -58,6 +60,7 @@ top10 <- head(VariableFeatures(merged), 10)
 plot1 <- VariableFeaturePlot(merged)
 plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 plot1 + plot2
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/d1d14b0b-841a-42f7-bf72-4a9133441371)
 
 #Scaling the data-------------
@@ -67,12 +70,16 @@ merged <- ScaleData(merged)
 merged <- RunPCA(merged, features = VariableFeatures(merged))
 print(merged[["pca"]], dims = 1:5, nfeatures = 5)
 VizDimLoadings(merged, dims = 1:2, reduction = "pca")
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/325d4da8-8330-452c-a88e-d44ce033467c)
+
 DimPlot(merged, reduction = "pca")
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/0d3bd939-c11e-4b50-b8f6-898bdfcfb3d5)
 DimHeatmap(merged, dims = 1, cells = 500, balanced = TRUE)
 DimHeatmap(merged, dims = 1:15, cells = 500, balanced = TRUE)
 ElbowPlot(merged)
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/1133c586-fa5a-4831-afa9-97f71f34ed8a)
 
 #Cluster the cells----------------------
@@ -82,8 +89,10 @@ head(Idents(merged), 5)
 
 merged <- RunUMAP(merged, dims = 1:10)
 DimPlot(merged, reduction = "umap")
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/167ec997-fedf-44b3-826a-c3efb55f37f9)
 DimPlot(merged, reduction = "umap", label = TRUE)
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/57828fb8-4a59-465d-aa5c-c7785286fbc3)
 
 # find all markers of cluster 5
@@ -92,6 +101,7 @@ head(cluster5.markers, n = 1000)
 write.csv(cluster5.markers, file = "cluster5_markers.csv", row.names = TRUE)
 # visualize top 2 markers in cluster5------------------
 VlnPlot(merged, features = c(row.names(cluster5.markers)[1], row.names(cluster5.markers)[2]))
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/9976638e-762f-4c4a-b3ee-43ab69b08292)
 
 # find all markers distinguishing cluster 5 from all other clusters (i.e., 0, 1,2,3,4)
@@ -101,8 +111,10 @@ write.csv(cluster5vsall.markers, file = "cluster5vsall.markers.csv", row.names =
 
 # vinplot for any markers
 VlnPlot(merged, features = c("Cd68", "Csf1r"))
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/92d01331-65ef-4828-80d9-2104ef8a343f)
 FeaturePlot(merged, features = c("Cd68", "Csf1r"))
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/7c6421d2-d84e-4c61-95e8-0796eafdc67e)
 
 # Find the markers for cluster 5 and heatmap
@@ -114,6 +126,7 @@ top_genes_cluster5 <- cluster5.markers %>%
 seurat_obj_cluster5 <- subset(merged, idents = "5", features = top_genes_cluster5)# Subset your Seurat object to cluster 5 and selected genes
 heatmap_plot_cluster5 <- DoHeatmap(seurat_obj_cluster5, features = top_genes_cluster5) + NoLegend()# Create a heatmap for cluster 5 using top markers
 print(heatmap_plot_cluster5)# Print the heatmap for cluster 5
+
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/ed310255-59c7-45bf-9a26-6862e575b795)
 
 
