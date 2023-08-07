@@ -113,6 +113,7 @@ write.csv(cluster5vsall.markers, file = "cluster5vsall.markers.csv", row.names =
 VlnPlot(merged, features = c("Cd68", "Csf1r"))
 
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/92d01331-65ef-4828-80d9-2104ef8a343f)
+
 FeaturePlot(merged, features = c("Cd68", "Csf1r"))
 
 ![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/7c6421d2-d84e-4c61-95e8-0796eafdc67e)
