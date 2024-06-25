@@ -1,134 +1,247 @@
-# Case-control-analysis-of-single-cell-RNAseq-data
-R-Code of scRNA-seq data analysis between WT and KO mice (n=3/group) 
+# Dissecting cell-type specific pathophysiological changes in human type-2 diabetic pancreatic islets using single-cell transcriptomic data
+#R-Code of scRNA-seq data analysis between No Diabets (ND), pre-diabetic (PD), and type 2 diabetic (T2D) states (n=3/group) 
 
-# Dataset: Publicly available data, extracted from NCBI, GEO Accession GSE212546
-# Citation: Liu XH, Zhou JT, Yan CX, Cheng C, Fan JN, Xu J, Zheng Q, Bai Q, Li Z, Li S, Li X. Single-cell RNA sequencing reveals a novel inhibitory effect of ApoA4 on NAFL mediated by liver-specific subsets of myeloid cells. Front Immunol. 2022 Nov 8;13:1038401. doi: 10.3389/fimmu.2022.1038401. PMID: 36426356; PMCID: PMC9678944.
-
-# Summary of the dataset: scRNA-seq on liver immune cells from WT and ApoA4-deficient mice administered a high-fat diet. 
-# Overall design: 	Liver immune cells isolated from WT and KO mice (n=3/group) were subjected to scRNA-seq
+# Dataset: Publicly available data, extracted from NCBI, GEO Accession GSE221156
 
 # Environment
-library(Seurat)
-library(ggplot2)
-library(patchwork)
 library(dplyr)
+
+library(Seurat)
+
+library(patchwork)
+
 library(cowplot)
-library(tidyr)
+
+library(magrittr)
+
+library(ggplot2)
 
 # Setting up the working directory
-setwd("~/GSE212546_Liver_WT_KO_NAFLD")
+setwd("~/GSE221156_human type-2 diabetic pancreatic islets")
 
-# Load the datasets
-control <- Read10X("~/GSE212546_Liver_WT_KO_NAFLD/WT")
-case <- Read10X("~/GSE212546_Liver_WT_KO_NAFLD/KO")
+#  Load the dataset: Group-1
+ND_1 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/ND/Islet29")
 
-# Create Seurat objects for control and case datasets
-control <- CreateSeuratObject(counts = control, project = "Control", min.cells = 3, min.features = 200)
-case <- CreateSeuratObject(counts = case, project = "Case", min.cells = 3, min.features = 200)
+ND_2 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/ND/Islet34")
 
-# Merge the two Seurat objects
-merged <- merge(x = control, y = case, add.cell.ids = c("Control", "Case"))
+ND_3 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/ND/Islet37")
 
-# Perform QC and store the 'percent.mt' in the metadata
-merged[["percent.mt"]] <- PercentageFeatureSet(merged, pattern = "^Mt-") # In case of human data, please use "^MT-" instead of "^Mt-"
+# Create Seurat objects for Group-1
+ND_1 <- CreateSeuratObject(counts = ND_1, project = "ND", min.cells = 3, min.features = 200)
 
-# VlnPlot
-VlnPlot(merged, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+ND_1 <- PercentageFeatureSet(ND_1, pattern = "^MT", col.name = "percent.mt")
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/0e40d81f-22bc-4b62-a6ed-4fc5986e48d5)
+ND_2 <- CreateSeuratObject(counts = ND_2, project = "ND", min.cells = 3, min.features = 200)
 
-# FeatureScatter plots
-plot1 <- FeatureScatter(merged, feature1 = "nCount_RNA", feature2 = "percent.mt")
-plot2 <- FeatureScatter(merged, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+ND_2 <- PercentageFeatureSet(ND_2, pattern = "^MT", col.name = "percent.mt")
 
-# Combine the two FeatureScatter plots using 'patchwork'
+ND_3 <- CreateSeuratObject(counts = ND_3, project = "ND", min.cells = 3, min.features = 200)
+
+ND_3 <- PercentageFeatureSet(ND_3, pattern = "^MT", col.name = "percent.mt")
+
+# Merge the all Seurat objects of Group-1
+
+ND <- merge(x = ND_1, y = c(ND_2, ND_3), add.cell.ids = ls()[1:3], project = 'ND')
+
+# Load the dataset: Group-2
+PD_1 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/PD/Islet40")
+
+PD_2 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/PD/Islet50")
+
+PD_3 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/PD/Islet53")
+
+# Create Seurat objects for Group-2
+PD_1 <- CreateSeuratObject(counts = PD_1, project = "PD", min.cells = 3, min.features = 200)
+
+PD_1 <- PercentageFeatureSet(PD_1, pattern = "^MT", col.name = "percent.mt")
+
+PD_2 <- CreateSeuratObject(counts = PD_2, project = "PD", min.cells = 3, min.features = 200)
+
+PD_2 <- PercentageFeatureSet(PD_2, pattern = "^MT", col.name = "percent.mt")
+
+PD_3 <- CreateSeuratObject(counts = PD_3, project = "PD", min.cells = 3, min.features = 200)
+
+PD_3 <- PercentageFeatureSet(PD_3, pattern = "^MT", col.name = "percent.mt")
+
+# Merge the all Seurat objects of Group-2
+PD <- merge(x = PD_1, y = c(PD_2, PD_3), add.cell.ids = ls()[1:3], project = 'PD')
+
+# Load the dataset: Group-3
+T2D_1 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/T2D/Islet28")
+
+T2D_2 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/T2D/Islet30")
+
+T2D_3 <- Read10X("~/GSE221156_human type-2 diabetic pancreatic islets/GSE221156/T2D/Islet31")
+
+# Create Seurat objects for Group-3
+T2D_1 <- CreateSeuratObject(counts = T2D_1, project = "T2D", min.cells = 3, min.features = 200)
+
+T2D_1 <- PercentageFeatureSet(T2D_1, pattern = "^MT", col.name = "percent.mt")
+
+T2D_2 <- CreateSeuratObject(counts = T2D_2, project = "T2D", min.cells = 3, min.features = 200)
+
+T2D_2 <- PercentageFeatureSet(T2D_2, pattern = "^MT", col.name = "percent.mt")
+
+T2D_3 <- CreateSeuratObject(counts = T2D_3, project = "T2D", min.cells = 3, min.features = 200)
+
+T2D_3 <- PercentageFeatureSet(T2D_3, pattern = "^MT", col.name = "percent.mt")
+
+# Merge the all Seurat objects of Group-3
+T2D <- merge(x = T2D_1, y = c(T2D_2, T2D_3), add.cell.ids = ls()[1:3], project = 'T2D')
+
+# Merge all Seurat objects 
+merged <- merge(x = ND, y = c(PD, T2D), add.cell.ids = c("ND", "PD", "T2D"))
+
+pbmc = merged #Rename
+
+# This is a great place to start QC stats
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+
+# Visualize QC metrics as a violin plot
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+
+pbmc <- subset(pbmc, subset = nFeature_RNA > 50 & nFeature_RNA < 10000 & percent.mt < 10)
+
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/b8509304-d0da-4e47-9d41-060c84ac9cca)
+
+plot1 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "percent.mt")
+
+plot2 <- FeatureScatter(pbmc, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+
 plot1 + plot2
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/ebd87539-f289-4d98-9a1f-b04cb54a51fe)
+#Normalization
+pbmc <- NormalizeData(pbmc)
 
-# Filtering -----------------
-merged <- subset(merged, subset = nFeature_RNA > 50 & nFeature_RNA < 2500 & 
-                 percent.mt < 0.05)
-
-# Normalizing the data-------------
-merged <- NormalizeData(merged)
-
-#Identification of highly variable features------------
-merged <- FindVariableFeatures(merged, selection.method = "vst", nfeatures = 2000)
-
-top10 <- head(VariableFeatures(merged), 10)
-plot1 <- VariableFeaturePlot(merged)
+# Feature selection
+pbmc <- FindVariableFeatures(pbmc, selection.method = "vst", nfeatures = 2000)
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(pbmc), 10)
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(pbmc)
 plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
 plot1 + plot2
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/11d13ec1-4785-424a-99f7-c376bc67bae4)
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/d1d14b0b-841a-42f7-bf72-4a9133441371)
+#Scaling
+all.genes <- rownames(pbmc)
+pbmc <- ScaleData(pbmc, features = all.genes)
 
-#Scaling the data-------------
-merged <- ScaleData(merged)
+#Perform linear dimensional reduction
+pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
+# Examine and visualize PCA results a few different ways
+print(pbmc[["pca"]], dims = 1:5, nfeatures = 5)
+VizDimLoadings(pbmc, dims = 1:2, reduction = "pca")
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/30648f9b-eb75-4430-9bdc-e9c0d71f0e39)
 
-#Perform linear dimensional reduction---------------
-merged <- RunPCA(merged, features = VariableFeatures(merged))
-print(merged[["pca"]], dims = 1:5, nfeatures = 5)
-VizDimLoadings(merged, dims = 1:2, reduction = "pca")
+DimPlot(pbmc, reduction = "pca") + NoLegend()
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/2dc2ef18-deeb-46b8-9908-1964d706a932)
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/325d4da8-8330-452c-a88e-d44ce033467c)
+DimHeatmap(pbmc, dims = 1, cells = 500, balanced = TRUE)
+DimHeatmap(pbmc, dims = 2, cells = 500, balanced = TRUE)
+DimHeatmap(pbmc, dims = 1:20, cells = 500, balanced = TRUE)
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/3f7f785e-38c3-4f64-8cbe-027f9f47f1b0)
 
-DimPlot(merged, reduction = "pca")
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/0d3bd939-c11e-4b50-b8f6-898bdfcfb3d5)
-DimHeatmap(merged, dims = 1, cells = 500, balanced = TRUE)
-DimHeatmap(merged, dims = 1:15, cells = 500, balanced = TRUE)
-ElbowPlot(merged)
+ElbowPlot(pbmc)
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/47187378-c6a7-46ef-a373-dba6734c6eda)
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/1133c586-fa5a-4831-afa9-97f71f34ed8a)
+pbmc <- FindNeighbors(pbmc, dims = 1:20)
+pbmc <- FindClusters(pbmc, resolution = 0.1)
+pbmc <- RunUMAP(pbmc, dims = 1:20)
+DimPlot(pbmc, reduction = "umap", label = TRUE)
 
-#Cluster the cells----------------------
-merged <- FindNeighbors(merged, dims = 1:10)
-merged <- FindClusters(merged, resolution = 0.1)
-head(Idents(merged), 5)
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/2ff7068d-60db-407e-9aef-56eed1460010)
 
-merged <- RunUMAP(merged, dims = 1:10)
-DimPlot(merged, reduction = "umap")
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/167ec997-fedf-44b3-826a-c3efb55f37f9)
-DimPlot(merged, reduction = "umap", label = TRUE)
+#To visualize the two conditions side-by-side
+DimPlot(pbmc, reduction = "umap", split.by = "orig.ident", label = TRUE)
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/57828fb8-4a59-465d-aa5c-c7785286fbc3)
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/ffca10e0-af56-4d37-b3e8-197517ca2ee7)
 
-# find all markers of cluster 5
-cluster5.markers <- FindMarkers(merged, ident.1 = 5, min.pct = 0.25)
-head(cluster5.markers, n = 1000)
-write.csv(cluster5.markers, file = "cluster5_markers.csv", row.names = TRUE)
-# visualize top 2 markers in cluster5------------------
-VlnPlot(merged, features = c(row.names(cluster5.markers)[1], row.names(cluster5.markers)[2]))
+# Compute t-SNE reduction
+pbmc <- RunTSNE(pbmc)
+# Visualize t-SNE plot
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/9976638e-762f-4c4a-b3ee-43ab69b08292)
+DimPlot(pbmc, reduction = "tsne")
 
-# find all markers distinguishing cluster 5 from all other clusters (i.e., 0, 1,2,3,4)
-cluster5vsall.markers <- FindMarkers(merged, ident.1 = 5, ident.2 = c(0,1,2,3,4), min.pct = 0.25)
-head(cluster5vsall.markers, n = 10)
-write.csv(cluster5vsall.markers, file = "cluster5vsall.markers.csv", row.names = TRUE)
+DimPlot(pbmc, reduction = "tsne", label = TRUE)
 
-# vinplot for any markers
-VlnPlot(merged, features = c("Cd68", "Csf1r"))
+DimPlot(pbmc, reduction = "tsne", split.by = "orig.ident")
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/92d01331-65ef-4828-80d9-2104ef8a343f)
+# Acinar cell + beta cell + alpha cell + Delta cell + Ductal cell + Apical cell + Stellate cell +
+# pancreatic stem cell + Endothelial cell + Macrophage
+features <- c("CPA1", "PRSS1",
+              "INS", "CDKN1C", "C-peptide",
+              "GCG", "GBA",
+              "SST",
+              "KRT19",
+              "ZO1",
+              "COL1A1",
+              "NANOG", 
+              "VWF",
+              "SDS", "CD68")
+DotPlot(pbmc, features = features, cols = c("green", "brown"),col.min = -5, col.max = 5 ) 
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/73c725a8-ee74-4074-baf5-c49c0d3c6f42)
 
-FeaturePlot(merged, features = c("Cd68", "Csf1r"))
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/7c6421d2-d84e-4c61-95e8-0796eafdc67e)
+# Remane the clusters based on cell markers using RenameIdents function
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/b0370451-779e-46a0-bb83-28f9a03baddc)
 
-# Find the markers for cluster 5 and heatmap
-cluster5.markers <- FindMarkers(object = merged, ident.1 = "5", min.pct = 0.25)
-print(colnames(cluster5.markers))# Print the column names of the cluster6.markers data frame
-top_genes_cluster5 <- cluster5.markers %>%
-  top_n(n = 100, wt = avg_log2FC) %>%
-  rownames()# Extract the gene names using row names
-seurat_obj_cluster5 <- subset(merged, idents = "5", features = top_genes_cluster5)# Subset your Seurat object to cluster 5 and selected genes
-heatmap_plot_cluster5 <- DoHeatmap(seurat_obj_cluster5, features = top_genes_cluster5) + NoLegend()# Create a heatmap for cluster 5 using top markers
-print(heatmap_plot_cluster5)# Print the heatmap for cluster 5
 
-![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/ed310255-59c7-45bf-9a26-6862e575b795)
+####################################################
+
+cluster_counts <- table(Idents(pbmc))#Count the number of cells in each cluster
+
+print(cluster_counts)
+
+#To visualize one condition from the all conditions 
+
+pbmc_meta.data <- pbmc@meta.data
+
+write.csv(pbmc_meta.data, file = "pbmc_cluster cell count.csv", row.names = TRUE) #from this excel file you will get the cluster cell number for each cluster and each condition
+
+################## The cluster-specific markers ################################
+###############################################################################
+
+pbmc1 <- JoinLayers(pbmc, features = c("assay1", "assay2", "assay3"))
+
+# find top 10 markers for every cluster compared, report only the positive ones
+
+pbmc.markers <- FindAllMarkers(pbmc1, only.pos = TRUE)
+
+data.markers<-pbmc.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC > 1)
+
+write.csv(data.markers, file = "cluster.markers.csv", row.names = TRUE)
+
+#Heatmap for all clusters
+
+pbmc.markers %>%
+  group_by(cluster) %>%
+  dplyr::filter(avg_log2FC > 1) %>%
+  slice_head(n = 5) %>%
+  ungroup() -> top10
+
+DoHeatmap(pbmc, features = top10$gene) + NoLegend()
+
+#colour option-1
+DoHeatmap(object = pbmc, features = top10$gene) + 
+  scale_fill_gradientn(colors = RColorBrewer::brewer.pal(n = 10, name = "RdBu"))
+
+#colour option-2
+DoHeatmap(object = pbmc, features = top10$gene) + scale_fill_gradientn(colors = colorRampPalette(c("#0200ad", "#fbfcbd", "#ff0000"))(256))
+
+#colour option-2
+DoHeatmap(object = pbmc, features = top10$gene) + scale_fill_gradientn(colors = colorRampPalette(c("dodgerblue3", "snow1", "brown3"))(256))
+
+
+
+
+
+
 
 
 
