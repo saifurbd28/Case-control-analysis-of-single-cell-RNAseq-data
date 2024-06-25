@@ -196,6 +196,9 @@ cluster_counts <- table(Idents(pbmc))#Count the number of cells in each cluster
 
 print(cluster_counts)
 
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/7ad478a0-8581-4fdd-ac24-78e362f95bd0)
+
+
 #To visualize one condition from the all conditions 
 
 pbmc_meta.data <- pbmc@meta.data
@@ -231,15 +234,48 @@ DoHeatmap(pbmc, features = top10$gene) + NoLegend()
 DoHeatmap(object = pbmc, features = top10$gene) + 
   scale_fill_gradientn(colors = RColorBrewer::brewer.pal(n = 10, name = "RdBu"))
 
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/70f475e2-0a40-49ec-9447-aaf8d53373ef)
+
+
 #colour option-2
 DoHeatmap(object = pbmc, features = top10$gene) + scale_fill_gradientn(colors = colorRampPalette(c("#0200ad", "#fbfcbd", "#ff0000"))(256))
+
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/0c2953e8-b0df-46f5-836e-566fb4772620)
 
 #colour option-2
 DoHeatmap(object = pbmc, features = top10$gene) + scale_fill_gradientn(colors = colorRampPalette(c("dodgerblue3", "snow1", "brown3"))(256))
 
+![image](https://github.com/saifurbd28/Case-control-analysis-of-single-cell-RNAseq-data/assets/100442163/a78061bd-9ed8-4b30-a671-45b4a5a9ad12)
 
 
+########### Find differential expression between two conditions (e.g., T2D and ND) in a specific cluster-1###################
+#Cluster0####################
+Cluster_0 <- subset(x = pbmc, idents = c("0"))
 
+DimPlot(Cluster_0, reduction = "umap", label = TRUE)
+
+Idents(Cluster_0) <- "orig.ident" 
+
+# T2D vs ND
+merged <- JoinLayers(object = Cluster_0, features = c("assay3", "assay1"))
+
+DE.Regression <- FindMarkers(merged, ident.1 = "T2D", ident.2 = "ND")
+
+write.csv(DE.Regression, file = "DE.T2D vs ND _clustr0_alpha cell.csv", row.names = TRUE)
+
+#T2D vs PD
+merged <- JoinLayers(object = Cluster_0, features = c("assay3", "assay2"))
+
+DE.Regression <- FindMarkers(merged, ident.1 = "T2D", ident.2 = "PD")
+
+write.csv(DE.Regression, file = "DE.T2D vs PD _clustr0_alpha cell.csv", row.names = TRUE)
+
+#PD vs ND
+merged <- JoinLayers(object = Cluster_0, features = c("assay2", "assay1"))
+
+DE.Regression <- FindMarkers(merged, ident.1 = "PD", ident.2 = "ND")
+
+write.csv(DE.Regression, file = "DE.PD vs ND _clustr0_alpha cell.csv", row.names = TRUE)
 
 
 
