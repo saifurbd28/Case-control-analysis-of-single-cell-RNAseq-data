@@ -249,7 +249,8 @@ DoHeatmap(object = pbmc, features = top10$gene) + scale_fill_gradientn(colors = 
 
 
 ########### Find differential expression between two conditions (e.g., T2D and ND) in a specific cluster-1###################
-#Cluster0####################
+# Example with Cluster_0
+
 Cluster_0 <- subset(x = pbmc, idents = c("0"))
 
 DimPlot(Cluster_0, reduction = "umap", label = TRUE)
@@ -257,20 +258,25 @@ DimPlot(Cluster_0, reduction = "umap", label = TRUE)
 Idents(Cluster_0) <- "orig.ident" 
 
 # T2D vs ND
+
 merged <- JoinLayers(object = Cluster_0, features = c("assay3", "assay1"))
 
 DE.Regression <- FindMarkers(merged, ident.1 = "T2D", ident.2 = "ND")
 
 write.csv(DE.Regression, file = "DE.T2D vs ND _clustr0_alpha cell.csv", row.names = TRUE)
 
-#T2D vs PD
+
+# T2D vs PD
+
 merged <- JoinLayers(object = Cluster_0, features = c("assay3", "assay2"))
 
 DE.Regression <- FindMarkers(merged, ident.1 = "T2D", ident.2 = "PD")
 
 write.csv(DE.Regression, file = "DE.T2D vs PD _clustr0_alpha cell.csv", row.names = TRUE)
 
-#PD vs ND
+
+# PD vs ND
+
 merged <- JoinLayers(object = Cluster_0, features = c("assay2", "assay1"))
 
 DE.Regression <- FindMarkers(merged, ident.1 = "PD", ident.2 = "ND")
